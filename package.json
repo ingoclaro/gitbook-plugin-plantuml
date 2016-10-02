@@ -1,0 +1,31 @@
+{
+  "name": "gitbook-plugin-plantuml",
+  "version": "1.0.0",
+  "description": "",
+  "engines": {
+    "gitbook": "3.x.x"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "node-plantuml": "^0.4.4"
+  },
+  "gitbook": {
+    "properties": {
+      "codeBlockKey": {
+        "type": "string",
+        "default": "plantuml",
+        "description": "codebock to parse, eg: ```plantuml"
+      },
+      "imagesCache": {
+        "type": "string",
+        "default": "docs/images",
+        "description": "path to store the generated images as a cache"
+      }
+    }
+  }
+}
