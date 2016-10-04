@@ -2,41 +2,56 @@ var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
 var plantuml = require('node-plantuml');
+var Promise = require("bluebird");
+var ps = require('promise-streams');
 
-function createUmlDrawing(content, file) {
+Promise.promisifyAll(fs);
 
-  try {
-    fs.statSync(file);
-  } catch (e) {
-    // create the file if it doesn't exist
+function createUmlDrawing(content, file, cacheFile) {
+  return fs.statAsync(file).catch(function(e) {
+    // file doesn't exist, we need to generate it
     var gen = plantuml.generate(content, {format: 'svg'});
-    gen.out.pipe(fs.createWriteStream(file));
-  }
+    var uml = gen.out.pipe(fs.createWriteStream(file));
 
-  return file;
+    if(cacheFile) {
+      gen.out.pipe(fs.createWriteStream(cacheFile));
+    }
+
+    return ps.wait(uml);
+  });
 }
 
 function processPage(content, contentFilePath, config) {
   var regex = new RegExp("```"+ config.codeBlockKey +"([^`]*)```", "g");
-
-  var relativeContentFilePath = path.relative(config.root, contentFilePath);
+  var promises = [];
 
   var replaced = content.replace(regex, function(match, p1) {
 
+    // generate the image filename with the sha1 of the block content
     var md5sum = crypto.createHash('sha1').update(p1).digest('hex');
+    var imageName = contentFilePath.replace('/','_') + '.' + md5sum + '.svg';
 
-    // absolute path to the image in the output directory (usualy _book/images/xxx)
-    var imagePath = path.join(config.output, 'images', relativeContentFilePath.replace('/','_') + '.' + md5sum + '.svg');
+    // path to the image in the output directory (usualy _book/images/xxx)
+    var outputImagePath = path.join(config.output, config.imagesDir, imageName);
+    var contentImagePath = path.join(config.root, config.imagesDir, imageName);
 
-    createUmlDrawing(p1, imagePath);
+    var cacheFile;
+    if(config.cacheImages) {
+      cacheFile = contentImagePath;
+    } else {
+      cacheFile = null;
+    }
 
-    // relative path from the content file to the image, used to generate the image href
-    var imageRelativePath = path.relative(contentFilePath, path.join(config.root, 'images')) +'/'+ path.basename(imagePath);
+    var umlPromise = createUmlDrawing(p1, outputImagePath, cacheFile);
+    promises.push(umlPromise);
+
+    // compute relative path to replace in content
+    var imageRelativePath = path.relative(path.dirname(path.join(config.root, contentFilePath)), contentImagePath);
 
     return '![]('+ imageRelativePath + ')';
   });
 
-  return replaced;
+  return Promise.all(promises).return(replaced);
 }
 
 module.exports = {

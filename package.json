@@ -12,7 +12,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "node-plantuml": "^0.4.4"
+    "bluebird": "^3.4.6",
+    "mkdirp": "^0.5.1",
+    "node-plantuml": "^0.4.4",
+    "promise-streams": "^1.0.1"
   },
   "gitbook": {
     "properties": {
@@ -21,10 +24,15 @@
         "default": "plantuml",
         "description": "codebock to parse, eg: ```plantuml"
       },
-      "imagesCache": {
+      "imagesDir": {
         "type": "string",
-        "default": "docs/images",
-        "description": "path to store the generated images as a cache"
+        "default": "images",
+        "description": "relative path within your _book directory where generated images are stored, the same directory is used within the root directory if it exsits."
+      },
+      "cacheImages": {
+        "type": "boolean",
+        "default": true,
+        "description": "if the root dir has an {imagesDir} directory, use it as a cache"
       }
     }
   }
