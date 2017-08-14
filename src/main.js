@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
-var plantuml = require('node-plantuml');
+var plantuml = require('pw-node-plantuml');
 var Promise = require("bluebird");
 var ps = require('promise-streams');
 
