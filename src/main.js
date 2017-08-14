@@ -48,7 +48,7 @@ function processPage(content, contentFilePath, config) {
     // compute relative path to replace in content
     var imageRelativePath = path.relative(path.dirname(path.join(config.root, contentFilePath)), contentImagePath);
 
-    return '<object type="image/svg+xml" class="plantuml" data="'+ imageRelativePath + '"/>';
+    return '<object type="image/svg+xml" class="plantuml" data="'+ imageRelativePath + '"></object>';
   });
 
   return Promise.all(promises).return(replaced);
