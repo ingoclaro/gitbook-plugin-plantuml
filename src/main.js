@@ -10,7 +10,7 @@ Promise.promisifyAll(fs);
 function createUmlDrawing(content, file, cacheFile) {
   return fs.statAsync(file).catch(function(e) {
     // file doesn't exist, we need to generate it
-    var gen = plantuml.generate(content, {format: 'svg'});
+    var gen = plantuml.generate(content, {format: 'svg', charset: 'UTF-8'});
     var uml = gen.out.pipe(fs.createWriteStream(file));
 
     if(cacheFile) {
